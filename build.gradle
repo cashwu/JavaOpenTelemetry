@@ -22,8 +22,14 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation platform("io.opentelemetry:opentelemetry-bom:1.42.0")
-    implementation('io.opentelemetry:opentelemetry-api')
+//    implementation platform('io.micrometer:micrometer-tracing-bom:latest.release')
+//   implementation 'io.micrometer:micrometer-tracing'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+
+//    implementation platform("io.opentelemetry:opentelemetry-bom:1.42.1")
+//    implementation('io.opentelemetry:opentelemetry-sdk')
 }
 
 tasks.named('test') {

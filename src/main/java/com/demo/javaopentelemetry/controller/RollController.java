@@ -1,6 +1,8 @@
 package com.demo.javaopentelemetry.controller;
 
 import com.demo.javaopentelemetry.model.Dice;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -25,20 +27,17 @@ public class RollController {
 
     private static final Logger log = LoggerFactory.getLogger(RollController.class);
 
-    private final Tracer tracer;
+    private final ObservationRegistry observationRegistry;
 
-    public RollController(OpenTelemetry openTelemetry) {
-        tracer = openTelemetry.getTracer(RollController.class.getName(), "0.1.0");
+    public RollController(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
     }
 
     @GetMapping("/rolldice")
     public List<Integer> index(@RequestParam("player") Optional<String> player,
                                @RequestParam("rolls") Optional<Integer> rolls) {
 
-        Span span = tracer.spanBuilder("rolldice").startSpan();
-
-        try(Scope scope = span.makeCurrent()) {
-
+        return Observation.createNotStarted("rolldice", observationRegistry).observe(() -> {
             if (rolls.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing rolls parameter");
             }
@@ -52,12 +51,6 @@ public class RollController {
             }
 
             return result;
-        }
-        catch (Throwable t) {
-            span.recordException(t);
-            throw t;
-        } finally {
-            span.end();
-        }
+        });
     }
 }
